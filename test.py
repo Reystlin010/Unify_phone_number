@@ -4,3 +4,5 @@ def get_perimeter(square_side: int) -> int:
 print(get_perimeter(5))
 #some text 111
 #jj
+
+print(123)
