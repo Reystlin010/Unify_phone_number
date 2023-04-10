@@ -5,11 +5,22 @@ from fastapi.responses import Response
 
 app = FastAPI()
 
+
 @app.post("/unify_phone_from_json")
-def return_unified_phone(json_dict_with_phone: json):
-    dict_with_phone = json.load(json_dict_with_phone)
+def return_unified_phone(json_dict_with_phone: str) -> Response:
+    dict_with_phone = json.loads(json_dict_with_phone)
+    print(type(dict_with_phone))
     phone = dict_with_phone.get("phone")
-    if phone:
-        return Response(unify_phone(phone))
-    else:
-        return Response("You should send a phone number as a json file")
+    if not phone:
+        message = "You should send a phone number as a json file"
+        return Response(
+            message,
+            media_type=str
+        )
+    response = unify_phone(phone)
+    return Response(
+            response,
+            media_type=str
+        )    
+    
+        
