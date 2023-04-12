@@ -1,26 +1,28 @@
 import json
+import uvicorn
+from fastapi import Request, FastAPI
 from standarting_phone import unify_phone
-from fastapi import FastAPI
-from fastapi.responses import Response
+
 
 app = FastAPI()
 
 
 @app.post("/unify_phone_from_json")
-def return_unified_phone(json_dict_with_phone: str) -> Response:
-    dict_with_phone = json.loads(json_dict_with_phone)
-    print(type(dict_with_phone))
-    phone = dict_with_phone.get("phone")
-    if not phone:
-        message = "You should send a phone number as a json file"
-        return Response(
-            message,
-            media_type=str
-        )
-    response = unify_phone(phone)
-    return Response(
-            response,
-            media_type=str
-        )    
+async def return_the_phone(json_with_phone: Request):
+    content_type = json_with_phone.headers.get('Content-Type')
+
+    if content_type is None:
+        return 'No content-type provided'
+    elif content_type == "application/json":
+        try:
+            data = await json_with_phone.json()
+            dict_with_phone = json.load(data)
+            phone = unify_phone(dict_with_phone.get("phone"))
+            return phone
+        except Exception:
+            return "Invalid JSON data"
+    else:
+        return "Content-Type not supported"
     
-        
+if __name__ == "__main__":
+    uvicorn.run(app, host="195.135.253.40", port=8000)
